@@ -2,13 +2,15 @@ const express = require('express')
 const mongoose = require('mongoose')
 require("dotenv").config()
 const cors = require('cors')
+const path = require('path')
 
 const app = express()
-
-// Middleware pour analyser les corps de requête JSON
+app.use(cors())
 app.use(express.json())
 
 app.use(express.static('public'))
+app.use(express.static(path.join(__dirname, 'upload')))
+app.use('/upload', express.static(__dirname + '/upload/'));
 
 mongoose.connect(process.env.DATABASE)
     .then(() => {
@@ -16,8 +18,8 @@ mongoose.connect(process.env.DATABASE)
     })
     .catch(() => {
         console.log("error connected");
-    })
-
+    }) 
+ 
 const port = process.env.PORT
 app.listen(port, () => {
     console.log(`connected at ${port}`);

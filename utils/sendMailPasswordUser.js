@@ -7,11 +7,16 @@ const sendEmailToUser = async (email, password) => {
     // Configuration du transporteur de messagerie
     const transporter = nodemailer.createTransport({
       service: 'gmail',
-      port:565,
+      port:587,
+      secure: false, // true for 465, false for other ports
+
       auth: {
         user: 'tragedela@gmail.com', // Remplacez par votre adresse e-mail
         pass: 'sxuqodqvepdjxpyl' // Remplacez par votre mot de passe
-      }
+      },
+      tls: {
+        rejectUnauthorized: false
+    }
     });
     // Définir les informations de l'e-mail
     const mailOptions = {

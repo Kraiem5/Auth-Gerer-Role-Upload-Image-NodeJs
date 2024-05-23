@@ -20,6 +20,7 @@ const registerRole = async (req, res) => {
 const getRole = async (req, res) => {
     try {
         const role = await roleModel.find()
+        console.log("aaa",role);
         return res.json(role)
     } catch (error) {
         console.log(error)
@@ -32,7 +33,7 @@ const updateRole = async (req, res) => {
         const role = await roleModel.findById(req.params.id)
         if (role) {
             const result = await roleModel.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
-            res.status(200).json({ message: 'Rôle modifié avec succès', data: result });
+            return res.status(200).json({ message: 'Rôle modifié avec succès', data: result });
         }
         return res.status(404).json({ message: 'Rôle non trouvé' });
     } catch (error) {

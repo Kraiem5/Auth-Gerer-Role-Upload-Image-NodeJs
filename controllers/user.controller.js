@@ -28,13 +28,13 @@ const registerUser = async (req, res) => {
         const newUser = new userModel({
             nom, prenom, email, password, role, cin, telephone
         })
-        console.log(newUser);
         await newUser.save()
         await sendEmailToUser(email, password)
         res.status(200).send({ msg: "utilisateur ajouté avec succès" })
     } catch (error) {
         res.status(400).send({ status: false })
     }
+    
 }
 const getUser = async (req, res) => {
     try {
@@ -83,7 +83,7 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body
     try {
         const user = await userModel.findOne({ email }).populate('role')
-        // console.log(user);
+        console.log(user);
         if (!user) {
             return res.status(400).json({
                 errors: [{ msg: 'Cannot find user with those credentials!' }]
@@ -104,7 +104,8 @@ const loginUser = async (req, res) => {
         }
         jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN }, (error, token) => {
             if (error) throw error
-            res.json({ token: token, admin: user.role.name === "Scrum Master" ? true : false })
+            res.json({ token: token, admin: user.role.name === "Admin" ? true : false })
+            console.log("true");
         })
 
     } catch (error) {
@@ -134,7 +135,7 @@ const getUserProfile = async (req, res) => {
 const sendForgetPasswordEmail = async (req, res) => {
     const email = req.body['email']
     try {
-        const user = await User.findOne({ email: email })
+        const user = await userModel.findOne({ email: email })
         if (!user) {
             return res.status(400).json({
                 errors: [{ msg: 'Cannot find user with those credentials!' }]
@@ -142,7 +143,7 @@ const sendForgetPasswordEmail = async (req, res) => {
         }
         const payload = {
             user: {
-                id: user.id
+                id: user._id
             }
         }
         const token = generateToken(payload)
@@ -199,6 +200,26 @@ const modifierPasswordApresConnexion = async (req, res) => {
         res.status(500).json({ message: 'Une erreur s\'est produite lors de la modification du mot de passe.' });
     }
 }
+const imagePofile = async (req, res) => {
+    try {
+        const user = await userModel.findById(req.user.id);
+        if (user) {
+            const result = await userModel.findByIdAndUpdate(req.user.id, { $set: { avatar: req.file.filename } })
+                .select('-password')
+            res.json({
+                status: true,
+                result: result
+            })
+        } else {
+            res.status(404).json({
+                succes: false,
+                msg: 'user not found'
+            })
+        }
+    } catch (error) {
+        console.log("update profile", error)
+    }
+}
 module.exports = {
     registerUser,
     getUser,
@@ -208,5 +229,6 @@ module.exports = {
     getUserProfile,
     sendForgetPasswordEmail,
     updatePassword,
-    modifierPasswordApresConnexion
+    modifierPasswordApresConnexion,
+    imagePofile
 }

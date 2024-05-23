@@ -27,10 +27,7 @@ const userSchema = new mongoose.Schema({
         type: String,
     }
     ,
-    cv: {
-        type: String,
-    }
-    ,
+    
     cin: {
         type: Number,
     },
